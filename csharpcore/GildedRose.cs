@@ -5,6 +5,7 @@ namespace csharpcore
     public class GildedRose
     {
         IList<Item> Items;
+
         public GildedRose(IList<Item> Items)
         {
             this.Items = Items;
@@ -14,16 +15,15 @@ namespace csharpcore
         {
             for (var i = 0; i < Items.Count; i++)
             {
+                //Dealing with the normal items
                 if (Items[i].Name != "Aged Brie" && Items[i].Name != "Backstage passes to a TAFKAL80ETC concert")
                 {
-                    if (Items[i].Quality > 0)
+                    if ((Items[i].Quality > 0) && (Items[i].Name != "Sulfuras, Hand of Ragnaros"))
                     {
-                        if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
+                        Items[i].Quality = Items[i].Quality - 1;
                     }
                 }
+                
                 else
                 {
                     if (Items[i].Quality < 50)

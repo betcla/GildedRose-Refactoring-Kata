@@ -59,6 +59,15 @@ namespace csharpcore
             app.UpdateQuality();
             Items[0].Quality.Should().Be(11);
         }
+        
+        [Test]
+        public void Quality_AgedBrie_Increases_TwiceAsFast_ForNegativeSellIn()
+        {
+            var Items = new List<Item> {new Item {Name = "Aged Brie", SellIn = 0, Quality = 10}};
+            var app = new GildedRose(Items);
+            app.UpdateQuality();
+            Items[0].Quality.Should().Be(12);
+        }
 
         [Test]
         public void SellIn_Sulfuras_StaysSame()
