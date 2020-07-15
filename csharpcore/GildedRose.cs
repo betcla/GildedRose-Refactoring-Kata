@@ -1,10 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace csharpcore
 {
     public class GildedRose
     {
         IList<Item> Items;
+        private int maximumQuality = 50;
+        private int minimumQuality = 0;
+        private int sellByDay = 0;
+        private int decreaseInQuality = -1;
+        private int increaseInQuality = 1;
+        private int decreaseInSellIn = -1;
+        private int decreaseInQualForConjured_positiveSellIn = -2;
+        private int decreaseInQualForConjured_negativeSellIn = -4;
+
 
         public GildedRose(IList<Item> Items)
         {
@@ -15,91 +25,135 @@ namespace csharpcore
         {
             for (var i = 0; i < Items.Count; i++)
             {
-                if (Items[i].Name != "Sulfuras, Hand of Ragnaros")
+                var item = Items[i];
+                if (IsSulfuras(item)/*||(item.Quality == maximumQuality)||(item.Quality == minimumQuality)*/)
                 {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-
-                    if ((Items[i].Name == "Aged Brie")&& (Items[i].Quality < 50))
-                    {
-                        if (Items[i].SellIn >= 0) 
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
-                        else if (Items[i].SellIn < 0)
-                        {
-                            Items[i].Quality = Items[i].Quality + 2;
-                        }
-                    }
-
-                    else if (Items[i].Name == "Backstage passes to a TAFKAL80ETC concert")
-                    {
-                        if ((Items[i].Quality < 50) && (Items[i].SellIn >= 0))
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                            if ((Items[i].Quality < 50) && (Items[i].SellIn < 10))
-                            {
-                                Items[i].Quality = Items[i].Quality + 1;
-                                if ((Items[i].Quality < 50) && (Items[i].SellIn < 5))
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                        else if (Items[i].SellIn < 0)
-                        {
-                            Items[i].Quality = 0;
-                        }
-                    }
-
-                    else if ((Items[i].Name.Contains("Conjured")) && (Items[i].Quality > 0))
-                    {
-                        Items[i].Quality = Items[i].Quality - 1;
-                        if (Items[i].Quality > 0)
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                            if ((Items[i].Quality > 1) && (Items[i].SellIn < 0))
-                            {
-                                Items[i].Quality = Items[i].Quality - 2;
-                            }
-                            else if ((Items[i].Quality == 1) && (Items[i].SellIn < 0))
-                            {
-                                Items[i].Quality = 0;
-                            }
-                        }
-
-                        /*if (Items[i].SellIn < 0)
-                        {
-                            if (Items[i].Quality < 5)
-                            {
-                                Items[i].Quality = 0;
-                            }
-                            else
-                            {
-                                Items[i].Quality = Items[i].Quality - 4;
-                            }
-                        }
-                        else
-                        {
-                            if (Items[i].Quality == 1)
-                            {
-                                Items[i].Quality = 0;
-                            }
-                            else
-                            {
-                                Items[i].Quality = Items[i].Quality - 2;
-                            }
-                        }*/
-                    }
-
-                    else if ((Items[i].Quality > 0) && (Items[i].Quality < 50))
-                    {
-                        Items[i].Quality = Items[i].Quality - 1;
-                        if ((Items[i].SellIn < 0) && (Items[i].Quality > 0))
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
+                    continue;
                 }
+
+                item.SellIn = item.SellIn + decreaseInSellIn;
+
+                if (IsAgedBrie(item) && (item.Quality < maximumQuality))
+                {
+                    UpdateAgedBrie(item);
+                    continue;
+                }
+
+                if (IsBackstage(item))
+                {
+                    UpdateBackstage(item);
+                    continue;
+                }
+
+                if (isConjured(item) && (item.Quality > minimumQuality))
+                {
+                    UpdateConjured(item);
+                    continue;
+                }
+                
+                if ((item.Quality > minimumQuality) && (item.Quality < maximumQuality))
+                {
+                    UpdateOtherItem(item);
+                }
+            }
+        }
+
+        private static bool isConjured(Item item)
+        {
+            return item.Name.Contains("Conjured");
+        }
+
+        private static bool IsBackstage(Item item)
+        {
+            return item.Name.Contains("Backstage");
+        }
+
+        private static bool IsAgedBrie(Item item)
+        {
+            return item.Name.Contains("Aged Brie");
+        }
+
+        private static bool IsSulfuras(Item item)
+        {
+            return item.Name.Contains("Sulfuras");
+        }
+
+        private void UpdateOtherItem(Item item)
+        {
+            item.Quality = item.Quality + decreaseInQuality;
+            if ((item.SellIn < sellByDay) && (item.Quality > minimumQuality))
+            {
+                item.Quality = item.Quality + decreaseInQuality;
+            }
+        }
+
+        private void UpdateConjured(Item item)
+        {
+            if (item.SellIn >= sellByDay)
+            {
+                UpdateConjuredForPositiveSellIn(item);
+            }
+            else
+            {
+                UpdateConjuredForNegativeSellIn(item);
+            }
+        }
+
+        private void UpdateConjuredForNegativeSellIn(Item item)
+        {
+            if (item.Quality <= Math.Abs(decreaseInQualForConjured_negativeSellIn))
+            {
+                item.Quality = minimumQuality;
+            }
+            else
+            {
+                item.Quality = item.Quality + decreaseInQualForConjured_negativeSellIn;
+            }
+        }
+
+        private void UpdateConjuredForPositiveSellIn(Item item)
+        {
+            if (item.Quality < Math.Abs(decreaseInQualForConjured_positiveSellIn))
+            {
+                item.Quality = minimumQuality;
+            }
+            else
+            {
+                item.Quality = item.Quality + decreaseInQualForConjured_positiveSellIn;
+            }
+        }
+
+        private void UpdateBackstage(Item item)
+        {
+            if ((item.Quality < maximumQuality) && (item.SellIn >= sellByDay))
+            {
+                UpdateBackstageForPositiveSellIn(item);
+            }
+            else if (item.SellIn < sellByDay)
+            {
+                item.Quality = minimumQuality;
+            }
+        }
+
+        private void UpdateBackstageForPositiveSellIn(Item item)
+        {
+            item.Quality = item.Quality + 1;
+            if ((item.Quality < maximumQuality) && (item.SellIn < 10))
+            {
+                item.Quality = item.Quality + 1;
+                if ((item.Quality < maximumQuality) && (item.SellIn < 5))
+                {
+                    item.Quality = item.Quality + 1;
+                }
+            }
+        }
+
+        private void UpdateAgedBrie(Item item)
+        {
+            item.Quality = item.Quality + increaseInQuality;
+            if (item.SellIn < sellByDay)
+            {
+                item.Quality = item.Quality + increaseInQuality;
             }
         }
     }
