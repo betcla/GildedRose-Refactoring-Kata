@@ -19,13 +19,13 @@ namespace csharpcore
                 {
                     Items[i].SellIn = Items[i].SellIn - 1;
 
-                    if (Items[i].Name == "Aged Brie")
+                    if ((Items[i].Name == "Aged Brie")&& (Items[i].Quality < 50))
                     {
-                        if ((Items[i].SellIn >= 0) && (Items[i].Quality < 50))
+                        if (Items[i].SellIn >= 0) 
                         {
                             Items[i].Quality = Items[i].Quality + 1;
                         }
-                        else if ((Items[i].SellIn < 0) && (Items[i].Quality < 50))
+                        else if (Items[i].SellIn < 0)
                         {
                             Items[i].Quality = Items[i].Quality + 2;
                         }
@@ -51,15 +51,52 @@ namespace csharpcore
                         }
                     }
 
-                    else
+                    else if ((Items[i].Name.Contains("Conjured")) && (Items[i].Quality > 0))
                     {
+                        Items[i].Quality = Items[i].Quality - 1;
                         if (Items[i].Quality > 0)
                         {
                             Items[i].Quality = Items[i].Quality - 1;
-                            if ((Items[i].SellIn < 0) && (Items[i].Quality > 0))
+                            if ((Items[i].Quality > 1) && (Items[i].SellIn < 0))
                             {
-                                Items[i].Quality = Items[i].Quality - 1;
+                                Items[i].Quality = Items[i].Quality - 2;
                             }
+                            else if ((Items[i].Quality == 1) && (Items[i].SellIn < 0))
+                            {
+                                Items[i].Quality = 0;
+                            }
+                        }
+
+                        /*if (Items[i].SellIn < 0)
+                        {
+                            if (Items[i].Quality < 5)
+                            {
+                                Items[i].Quality = 0;
+                            }
+                            else
+                            {
+                                Items[i].Quality = Items[i].Quality - 4;
+                            }
+                        }
+                        else
+                        {
+                            if (Items[i].Quality == 1)
+                            {
+                                Items[i].Quality = 0;
+                            }
+                            else
+                            {
+                                Items[i].Quality = Items[i].Quality - 2;
+                            }
+                        }*/
+                    }
+
+                    else if ((Items[i].Quality > 0) && (Items[i].Quality < 50))
+                    {
+                        Items[i].Quality = Items[i].Quality - 1;
+                        if ((Items[i].SellIn < 0) && (Items[i].Quality > 0))
+                        {
+                            Items[i].Quality = Items[i].Quality - 1;
                         }
                     }
                 }
