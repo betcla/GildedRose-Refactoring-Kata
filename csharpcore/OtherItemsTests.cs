@@ -6,9 +6,6 @@ namespace csharpcore
 {
     public class OtherItemsTests
     {
-        /*private readonly AgedBrieTests _agedBrieTests = new AgedBrieTests();
-        private readonly BackstageTests _backstageTests = new BackstageTests();*/
-
         [Test]
         public void Quality_CantBe_NegativeForPositiveSellIn()
         {
